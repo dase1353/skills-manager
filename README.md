@@ -1,59 +1,69 @@
-# SkillsManager
+# Skills Manager ⚡
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+Skills Manager is a powerful desktop application design for visualizing, installing, and managing AI Agent Skills. Built with Angular and Tauri, it provides a sleek interface to interact with the [skills CLI](https://skills.sh).
 
-## Development server
+![Dashboard Preview](src-tauri/icons/icon.png)
 
-To start a local development server, run:
+## 🚀 Features
+
+- **📊 Dashboard**: Quick overview of your installed skills, project vs global distribution, and connected AI agents.
+- **📋 Skills Management**: Browse installed skills in a clean list view. Search, filter, and sort by name, install date, or agent count.
+- **📖 Skill Details**: Read the full `SKILL.md` content, view metadata, author info, and security assessments.
+- **🛒 Marketplace**: Easily install new skills directly from GitHub repositories.
+- **🛡️ Security First**: integrated security assessments (Gen, Socket, Snyk) for supported skills.
+- **🤖 Agent Linking**: Automatically handles symlinking skills to agents like Claude Desktop, Cursor, VS Code Copilot, and more.
+- **⚙️ Setup Guard**: Automatically checks if the required `skills` CLI is installed on startup.
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Angular v19+ (Signals, Standalone Components, Reactive UI)
+- **Backend**: Tauri v2 (Rust)
+- **Database**: SQLite (via `rusqlite` with bundled features)
+- **Design**: Vanilla CSS with Glassmorphism aesthetics and Dark Mode
+- **CLI Integration**: `npx skills`
+
+## 📦 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v20+)
+- [Rust](https://www.rust-lang.org/) (v1.75+)
+- [skills](https://www.npmjs.com/package/skills) CLI: `npm install -g skills`
+- **Windows**: [Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/downloads/) with C++ workload.
+
+### Development
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/dase1353/skills-manager.git
+   cd skills-manager
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run in development mode**:
+   ```bash
+   # Windows (sets up MSVC environment automatically)
+   ./dev.bat
+
+   # Other platforms
+   npm run tauri dev
+   ```
+
+## 🏗️ Building for Production
 
 ```bash
-ng serve
+npm run tauri build
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The installer will be generated in `src-tauri/target/release/bundle/`.
 
-## Code scaffolding
+## 📜 License
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+[MIT](LICENSE)
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+Made with ❤️ for the AI Agent community.
