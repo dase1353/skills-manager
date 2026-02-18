@@ -1,7 +1,7 @@
 # Skills Manager ⚡
 
 > [!IMPORTANT]
-> **This project was written entirely by AI (Claude 3.7 Sonnet) and is intended for reference and testing purposes only.**
+> **This project was written entirely by AI (Claude 4.6 Sonnet) and is intended for reference and testing purposes only.**
 > (User requested marking as "Sonnet 4.6" for the test project context)
 
 Skills Manager is a powerful desktop application designed for visualizing, installing, and managing AI Agent Skills. Built with Angular and Tauri, it provides a sleek interface to interact with the [skills CLI](https://skills.sh).
@@ -11,8 +11,7 @@ Skills Manager is a powerful desktop application designed for visualizing, insta
 # Skills Manager ⚡ (繁體中文)
 
 > [!IMPORTANT]
-> **本專案完全由 AI (Claude 3.7 Sonnet) 撰寫，僅供參考與測試使用。**
-> (依使用者要求標示為 Sonnet 4.6 測試專案)
+> **本專案完全由 AI (Claude 4.6 Sonnet) 撰寫，僅供參考與測試使用。**
 
 Skills Manager 是一款強大的桌面應用程式，專為視覺化、安裝及管理 AI Agent Skills 而設計。本工具採用 Angular 與 Tauri 構建，為 [skills CLI](https://skills.sh) 提供了一個美觀的使用介面。
 
