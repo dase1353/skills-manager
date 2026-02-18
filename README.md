@@ -1,8 +1,6 @@
 # Skills Manager ⚡
 
-Skills Manager is a powerful desktop application design for visualizing, installing, and managing AI Agent Skills. Built with Angular and Tauri, it provides a sleek interface to interact with the [skills CLI](https://skills.sh).
-
-![Dashboard Preview](src-tauri/icons/icon.png)
+Skills Manager is a powerful desktop application designed for visualizing, installing, and managing AI Agent Skills. Built with Angular and Tauri, it provides a sleek interface to interact with the [skills CLI](https://skills.sh).
 
 ## 🚀 Features
 
