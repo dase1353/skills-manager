@@ -32,6 +32,10 @@ pub fn run() {
             commands::remove_skill_cmd,
             commands::get_scan_paths,
             commands::check_skills_cli,
+            commands::open_path,
+            commands::get_agent_settings,
+            commands::update_agent_setting,
+            commands::reset_default_agents,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

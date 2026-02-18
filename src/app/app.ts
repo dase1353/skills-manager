@@ -12,7 +12,9 @@ import { invoke } from '@tauri-apps/api/core';
     @if (skillsCliMissing()) {
       <div class="cli-banner">
         <div class="cli-banner-content">
-          <span class="cli-banner-icon">⚠️</span>
+          <div class="cli-banner-icon icon-box icon-box-sm icon-box-amber">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
           <div>
             <strong>未偵測到 skills CLI 工具</strong>
             <p>安裝/移除功能需要 <code>skills</code> 套件。請執行 <code>npm install -g skills</code> 安裝。</p>
@@ -24,31 +26,33 @@ import { invoke } from '@tauri-apps/api/core';
 
     <div class="app-layout">
       <!-- Sidebar -->
-      <aside class="sidebar glass">
+      <aside class="sidebar">
         <div class="sidebar-brand">
-          <div class="brand-icon">⚡</div>
+          <div class="brand-icon">
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
           <span class="brand-text">Skills Manager</span>
         </div>
 
         <nav class="sidebar-nav">
           <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-            <span class="nav-icon">📊</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             <span class="nav-label">Dashboard</span>
           </a>
           <a routerLink="/skills" routerLinkActive="active" class="nav-item">
-            <span class="nav-icon">📋</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
             <span class="nav-label">Skills</span>
           </a>
           <a routerLink="/install" routerLinkActive="active" class="nav-item">
-            <span class="nav-icon">🛒</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span class="nav-label">安裝</span>
           </a>
           <a routerLink="/help" routerLinkActive="active" class="nav-item">
-            <span class="nav-icon">📖</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             <span class="nav-label">說明</span>
           </a>
           <a routerLink="/settings" routerLinkActive="active" class="nav-item">
-            <span class="nav-icon">⚙️</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             <span class="nav-label">設定</span>
           </a>
         </nav>
@@ -66,8 +70,8 @@ import { invoke } from '@tauri-apps/api/core';
   `,
   styles: [`
     .cli-banner {
-      background: rgba(210, 153, 34, 0.12);
-      border-bottom: 1px solid rgba(210, 153, 34, 0.3);
+      background: rgba(234, 179, 8, 0.08);
+      border-bottom: 1px solid rgba(234, 179, 8, 0.2);
       padding: 10px var(--space-lg);
     }
 
@@ -77,10 +81,6 @@ import { invoke } from '@tauri-apps/api/core';
       gap: var(--space-md);
       max-width: 1200px;
       margin: 0 auto;
-    }
-
-    .cli-banner-icon {
-      font-size: 20px;
     }
 
     .cli-banner-content p {
@@ -116,75 +116,113 @@ import { invoke } from '@tauri-apps/api/core';
     }
 
     .sidebar {
-      width: 220px;
-      min-width: 220px;
+      width: 230px;
+      min-width: 230px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid var(--border);
       background: var(--bg-surface);
       z-index: 10;
+      position: relative;
+    }
+
+    .sidebar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--primary), transparent);
+      opacity: 0.15;
     }
 
     .sidebar-brand {
       display: flex;
       align-items: center;
-      gap: var(--space-sm);
+      gap: 10px;
       padding: var(--space-lg) var(--space-md);
       border-bottom: 1px solid var(--border);
     }
 
     .brand-icon {
-      font-size: 22px;
       width: 36px;
       height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      background: var(--gradient-primary);
       border-radius: var(--radius-sm);
+      color: white;
+      box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+    }
+
+    .brand-icon .icon-svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      stroke: none;
     }
 
     .brand-text {
       font-size: 15px;
       font-weight: 700;
       letter-spacing: -0.02em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .sidebar-nav {
       flex: 1;
-      padding: var(--space-sm);
+      padding: var(--space-sm) 10px;
       display: flex;
       flex-direction: column;
       gap: 2px;
+      margin-top: var(--space-xs);
     }
 
     .nav-item {
       display: flex;
       align-items: center;
-      gap: var(--space-sm);
+      gap: 10px;
       padding: 10px 12px;
       border-radius: var(--radius-sm);
       color: var(--text-secondary);
       text-decoration: none;
       font-size: 13px;
       font-weight: 500;
-      transition: all 0.2s;
+      transition: all var(--transition-base);
+      cursor: pointer;
+      position: relative;
     }
 
     .nav-item:hover {
-      background: var(--bg-card);
+      background: rgba(255, 255, 255, 0.04);
       color: var(--text-primary);
     }
 
     .nav-item.active {
-      background: rgba(123, 31, 162, 0.15);
+      background: var(--primary-soft);
       color: var(--primary-light);
     }
 
-    .nav-icon {
-      font-size: 18px;
-      width: 24px;
-      text-align: center;
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--gradient-primary);
+    }
+
+    .nav-item .icon-svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
     }
 
     .sidebar-footer {
@@ -193,12 +231,14 @@ import { invoke } from '@tauri-apps/api/core';
     }
 
     .version-badge {
-      display: inline-block;
-      padding: 2px 8px;
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
       background: var(--bg-card);
       border-radius: 100px;
       font-size: 11px;
       color: var(--text-muted);
+      border: 1px solid var(--border);
     }
 
     .main-content {

@@ -4,26 +4,31 @@ import { SkillsService } from '../../core/services/skills.service';
 import { InstallResult } from '../../core/models/skill.model';
 
 @Component({
-    selector: 'app-marketplace',
-    standalone: true,
-    imports: [FormsModule],
-    template: `
+  selector: 'app-marketplace',
+  standalone: true,
+  imports: [FormsModule],
+  template: `
     <div class="marketplace-page">
       <header class="page-header animate-in">
         <h1 class="page-title">安裝 Skills</h1>
-        <p class="page-subtitle">從 GitHub 倉庫安裝 Agent Skills</p>
+        <p class="page-subtitle">透過 <code>npx skills add</code> 安裝 Agent Skills</p>
       </header>
 
       <!-- Install Form -->
       <div class="install-form card animate-in" style="animation-delay: 0.05s">
-        <h2 class="form-title">從 GitHub 安裝</h2>
-        <p class="form-desc">輸入 GitHub 倉庫路徑（例如 <code>angular/angular</code> 或 <code>analogjs/angular-skills</code>）</p>
+        <h2 class="form-title">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          安裝 Skill
+        </h2>
+        <p class="form-desc">輸入 Skill 名稱或 GitHub 倉庫路徑，將透過 <code>npx skills add</code> 指令安裝（例如 <code>anthropics/skills@skill-creator</code> 或 <code>analogjs/angular-skills</code>）</p>
 
         <div class="form-row">
           <div class="input-group" style="flex: 1">
-            <span class="icon">📦</span>
+            <span class="icon">
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </span>
             <input type="text"
-                   placeholder="owner/repo"
+                   placeholder="owner/repo 或 owner/repo@skill-name"
                    [ngModel]="repoInput()"
                    (ngModelChange)="repoInput.set($event)"
                    (keydown.enter)="install()" />
@@ -39,7 +44,13 @@ import { InstallResult } from '../../core/models/skill.model';
           <button class="btn btn-primary"
                   (click)="install()"
                   [disabled]="installing() || !repoInput()">
-            {{ installing() ? '安裝中...' : '🚀 安裝' }}
+            @if (installing()) {
+              <div class="spinner" style="width:14px;height:14px;border-width:2px"></div>
+              安裝中...
+            } @else {
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              安裝
+            }
           </button>
         </div>
 
@@ -56,7 +67,15 @@ import { InstallResult } from '../../core/models/skill.model';
              [class.result-success]="result()!.success"
              [class.result-error]="!result()!.success">
           <div class="result-header">
-            <span class="result-icon">{{ result()!.success ? '✅' : '❌' }}</span>
+            @if (result()!.success) {
+              <div class="icon-box icon-box-sm icon-box-green">
+                <svg class="icon-svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            } @else {
+              <div class="icon-box icon-box-sm icon-box-red">
+                <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+            }
             <span class="result-msg">{{ result()!.message }}</span>
           </div>
           @if (result()!.output) {
@@ -70,14 +89,18 @@ import { InstallResult } from '../../core/models/skill.model';
 
       <!-- Popular Repos -->
       <section class="popular-section animate-in" style="animation-delay: 0.15s">
-        <h2 class="section-title">🔥 熱門 Skills 倉庫</h2>
+        <h2 class="section-title">
+          <svg class="icon-svg" style="color: var(--warning)" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          熱門 Skills 倉庫
+        </h2>
         <div class="repo-grid">
           @for (repo of popularRepos; track repo.name) {
             <div class="repo-card card card-clickable" (click)="repoInput.set(repo.name)">
               <div class="repo-name">{{ repo.name }}</div>
               <p class="repo-desc">{{ repo.desc }}</p>
               <div class="repo-meta">
-                <span class="repo-skills">📦 {{ repo.skills }} skills</span>
+                <svg class="icon-svg icon-svg-sm" style="display:inline;vertical-align:middle;margin-right:2px" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                {{ repo.skills }} skills
               </div>
             </div>
           }
@@ -85,15 +108,30 @@ import { InstallResult } from '../../core/models/skill.model';
       </section>
     </div>
   `,
-    styles: [`
-    .marketplace-page { max-width: 900px; }
+  styles: [`
+    .marketplace-page { width: 100%; }
 
     .page-header { margin-bottom: var(--space-lg); }
-    .page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+    .page-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .page-subtitle { color: var(--text-secondary); margin-top: 4px; font-size: 13px; }
 
     .install-form { margin-bottom: var(--space-lg); }
-    .form-title { font-size: 16px; font-weight: 600; margin-bottom: var(--space-xs); }
+    .form-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
     .form-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: var(--space-md); }
     .form-desc code {
       background: var(--bg-input);
@@ -101,6 +139,7 @@ import { InstallResult } from '../../core/models/skill.model';
       border-radius: 4px;
       font-family: var(--font-mono);
       font-size: 12px;
+      color: var(--accent-light);
     }
 
     .form-row {
@@ -126,6 +165,8 @@ import { InstallResult } from '../../core/models/skill.model';
 
     .toggle-label input[type="checkbox"] {
       accent-color: var(--primary);
+      width: 16px;
+      height: 16px;
     }
 
     .progress-bar {
@@ -139,7 +180,7 @@ import { InstallResult } from '../../core/models/skill.model';
     .progress-inner {
       height: 100%;
       width: 30%;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
+      background: var(--gradient-primary);
       border-radius: 3px;
       animation: progressSlide 1.5s ease infinite;
     }
@@ -169,13 +210,16 @@ import { InstallResult } from '../../core/models/skill.model';
       cursor: pointer;
       font-size: 12px;
       color: var(--text-secondary);
+      transition: color var(--transition-fast);
     }
+    .result-output summary:hover { color: var(--text-primary); }
 
     .result-output pre {
       margin-top: var(--space-sm);
       padding: var(--space-md);
       background: var(--bg-input);
       border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
       font-family: var(--font-mono);
       font-size: 11px;
       white-space: pre-wrap;
@@ -187,6 +231,9 @@ import { InstallResult } from '../../core/models/skill.model';
       font-size: 16px;
       font-weight: 600;
       margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
     }
 
     .repo-grid {
@@ -204,6 +251,7 @@ import { InstallResult } from '../../core/models/skill.model';
       font-size: 14px;
       font-family: var(--font-mono);
       margin-bottom: var(--space-xs);
+      color: var(--accent-light);
     }
 
     .repo-desc {
@@ -216,34 +264,36 @@ import { InstallResult } from '../../core/models/skill.model';
     .repo-meta {
       font-size: 11px;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
     }
   `]
 })
 export class MarketplaceComponent {
-    repoInput = signal('');
-    globalScope = signal(true);
-    installing = signal(false);
-    result = signal<InstallResult | null>(null);
+  repoInput = signal('');
+  globalScope = signal(true);
+  installing = signal(false);
+  result = signal<InstallResult | null>(null);
 
-    popularRepos = [
-        { name: 'angular/angular', desc: 'Angular 官方 skills — core, compiler, signal-forms, new-app', skills: 4 },
-        { name: 'analogjs/angular-skills', desc: 'AnalogJS 的 Angular v20+ 開發 skills 全套', skills: 10 },
-        { name: 'vercel-labs/agent-skills', desc: 'Vercel 精選 AI Agent Skills 集合', skills: 8 },
-        { name: 'microsoft/skills', desc: 'Microsoft 官方 Agent Skills', skills: 5 },
-        { name: 'remotion-dev/skills', desc: 'Remotion 影片製作 Agent Skills', skills: 3 },
-    ];
+  popularRepos = [
+    { name: 'angular/angular', desc: 'Angular 官方 skills — core, compiler, signal-forms, new-app', skills: 4 },
+    { name: 'analogjs/angular-skills', desc: 'AnalogJS 的 Angular v20+ 開發 skills 全套', skills: 10 },
+    { name: 'vercel-labs/agent-skills', desc: 'Vercel 精選 AI Agent Skills 集合', skills: 8 },
+    { name: 'microsoft/skills', desc: 'Microsoft 官方 Agent Skills', skills: 5 },
+    { name: 'remotion-dev/skills', desc: 'Remotion 影片製作 Agent Skills', skills: 3 },
+  ];
 
-    constructor(private service: SkillsService) { }
+  constructor(private service: SkillsService) { }
 
-    async install() {
-        const repo = this.repoInput().trim();
-        if (!repo) return;
+  async install() {
+    const repo = this.repoInput().trim();
+    if (!repo) return;
 
-        this.installing.set(true);
-        this.result.set(null);
+    this.installing.set(true);
+    this.result.set(null);
 
-        const result = await this.service.installSkill(repo, this.globalScope());
-        this.result.set(result);
-        this.installing.set(false);
-    }
+    const result = await this.service.installSkill(repo, this.globalScope());
+    this.result.set(result);
+    this.installing.set(false);
+  }
 }

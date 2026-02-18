@@ -43,3 +43,10 @@ export interface ScanPath {
   path: string;
   path_type: string;
 }
+
+export interface AgentSetting {
+  id: number | null;
+  agent_id: string;
+  display_name: string;
+  enabled: boolean;
+}

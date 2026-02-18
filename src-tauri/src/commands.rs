@@ -27,6 +27,12 @@ pub fn scan_skills(db: State<'_, Database>) -> Result<Vec<Skill>, String> {
             all_skills.extend(skills);
         }
     }
+    
+    // Cleanup skills that are no longer on disk
+    let pruned = db.prune_missing_skills()?;
+    if pruned > 0 {
+        println!("Pruned {} missing skills from database", pruned);
+    }
 
     Ok(all_skills)
 }
@@ -35,6 +41,7 @@ pub fn scan_skills(db: State<'_, Database>) -> Result<Vec<Skill>, String> {
 
 #[tauri::command]
 pub fn get_all_skills(db: State<'_, Database>) -> Result<Vec<Skill>, String> {
+    let _ = db.prune_missing_skills();
     db.get_all_skills()
 }
 
@@ -55,6 +62,8 @@ pub fn get_skill_detail(db: State<'_, Database>, name: String) -> Result<serde_j
 
 #[tauri::command]
 pub fn get_stats(db: State<'_, Database>) -> Result<serde_json::Value, String> {
+    // Automatically prune ghost skills when getting stats
+    let _ = db.prune_missing_skills();
     db.get_stats()
 }
 
@@ -67,10 +76,20 @@ pub fn install_skill_from_repo(
     global: bool,
     skill_name: Option<String>,
 ) -> Result<installer::InstallResult, String> {
+    // Get enabled agents from settings
+    let agent_settings = db.get_agent_settings()?;
+    let enabled_agents: Vec<String> = agent_settings.into_iter()
+        .filter(|a| a.enabled)
+        .map(|a| a.agent_id)
+        .collect();
+    
+    let agents_opt = if enabled_agents.is_empty() { None } else { Some(enabled_agents) };
+
     let result = installer::install_skill(
         &repo,
         global,
         skill_name.as_deref(),
+        agents_opt,
     );
 
     // Re-scan after install to pick up new skills
@@ -103,6 +122,21 @@ pub fn get_scan_paths(db: State<'_, Database>) -> Result<Vec<crate::db::ScanPath
     db.get_scan_paths()
 }
 
+#[tauri::command]
+pub fn get_agent_settings(db: State<'_, Database>) -> Result<Vec<crate::db::AgentSetting>, String> {
+    db.get_agent_settings()
+}
+
+#[tauri::command]
+pub fn update_agent_setting(db: State<'_, Database>, agent_id: String, enabled: bool) -> Result<(), String> {
+    db.update_agent_setting(&agent_id, enabled)
+}
+
+#[tauri::command]
+pub fn reset_default_agents(db: State<'_, Database>) -> Result<(), String> {
+    db.reset_default_agents()
+}
+
 // ──── CLI Check ────
 
 #[tauri::command]
@@ -119,6 +153,32 @@ pub fn check_skills_cli() -> Result<bool, String> {
 }
 
 // ──── Helpers ────
+
+#[tauri::command]
+pub fn open_path(path: String) -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
 
 fn scan_skills_internal(db: &Database) -> Result<(), String> {
     let scan_paths = db.get_scan_paths()?;

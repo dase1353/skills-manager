@@ -34,6 +34,14 @@ pub struct ScanPath {
     pub path_type: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AgentSetting {
+    pub id: Option<i64>,
+    pub agent_id: String,
+    pub display_name: String,
+    pub enabled: bool,
+}
+
 pub struct Database {
     pub conn: Mutex<Connection>,
 }
@@ -100,6 +108,13 @@ impl Database {
                 path TEXT NOT NULL UNIQUE,
                 type TEXT DEFAULT 'global'
             );
+
+            CREATE TABLE IF NOT EXISTS agent_settings (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                agent_id     TEXT NOT NULL UNIQUE,
+                display_name TEXT NOT NULL,
+                enabled      INTEGER DEFAULT 1
+            );
             "
         ).map_err(|e| format!("Failed to initialize database: {}", e))?;
 
@@ -108,6 +123,36 @@ impl Database {
             "INSERT OR IGNORE INTO scan_paths (path, type) VALUES (?1, 'global')",
             params![dirs::home_dir().unwrap().join(".agents").join("skills").to_string_lossy().to_string()],
         ).ok();
+
+        // Insert default agent settings
+        let default_agents = vec![
+            ("antigravity", "Antigravity (Google)", true),
+            ("claude-code", "Claude Code (Anthropic)", true),
+            ("cursor", "Cursor", false),
+            ("windsurf", "Windsurf (Codeium)", true),
+            ("github-copilot", "GitHub Copilot", true),
+            ("continue", "Continue", false),
+            ("goose", "Goose (Block)", false),
+            ("cline", "Cline", false),
+            ("roo", "Roo Code", false),
+            ("trae", "Trae (ByteDance)", false),
+            ("gemini-cli", "Gemini CLI", true),
+            ("kimi-cli", "Kimi CLI", false),
+            ("openhands", "OpenHands", false),
+            ("droid", "Droid (Factory)", false),
+            ("crush", "Crush", false),
+            ("amp", "Amp", false),
+            ("replit", "Replit", false),
+            ("codex", "Codex", false),
+            ("opencode", "OpenCode", false),
+        ];
+
+        for (id, name, enabled) in default_agents {
+            conn.execute(
+                "INSERT OR IGNORE INTO agent_settings (agent_id, display_name, enabled) VALUES (?1, ?2, ?3)",
+                params![id, name, if enabled { 1 } else { 0 }],
+            ).ok();
+        }
 
         Ok(())
     }
@@ -259,6 +304,73 @@ impl Database {
         Ok(paths)
     }
 
+    pub fn get_agent_settings(&self) -> Result<Vec<AgentSetting>, String> {
+        let conn = self.conn.lock().map_err(|e| e.to_string())?;
+        let mut stmt = conn.prepare("SELECT id, agent_id, display_name, enabled FROM agent_settings")
+            .map_err(|e| format!("Failed to prepare query: {}", e))?;
+
+        let settings: Vec<AgentSetting> = stmt.query_map([], |row| {
+            Ok(AgentSetting {
+                id: row.get(0)?,
+                agent_id: row.get(1)?,
+                display_name: row.get(2)?,
+                enabled: row.get(3).unwrap_or(0) == 1,
+            })
+        }).map_err(|e| format!("Failed to query agent settings: {}", e))?
+        .filter_map(|r| r.ok())
+        .collect();
+
+        Ok(settings)
+    }
+
+    pub fn update_agent_setting(&self, agent_id: &str, enabled: bool) -> Result<(), String> {
+        let conn = self.conn.lock().map_err(|e| e.to_string())?;
+        conn.execute(
+            "UPDATE agent_settings SET enabled = ?1 WHERE agent_id = ?2",
+            params![if enabled { 1 } else { 0 }, agent_id],
+        ).map_err(|e| format!("Failed to update agent setting: {}", e))?;
+        Ok(())
+    }
+
+    pub fn reset_default_agents(&self) -> Result<(), String> {
+        let conn = self.conn.lock().map_err(|e| e.to_string())?;
+        
+        // Clear current ones
+        conn.execute("DELETE FROM agent_settings", []).map_err(|e| e.to_string())?;
+        
+        // Re-insert defaults from code
+        let default_agents = vec![
+            ("antigravity", "Antigravity (Google)", true),
+            ("claude-code", "Claude Code (Anthropic)", true),
+            ("cursor", "Cursor", false),
+            ("windsurf", "Windsurf (Codeium)", true),
+            ("github-copilot", "GitHub Copilot", true),
+            ("continue", "Continue", false),
+            ("goose", "Goose (Block)", false),
+            ("cline", "Cline", false),
+            ("roo", "Roo Code", false),
+            ("trae", "Trae (ByteDance)", false),
+            ("gemini-cli", "Gemini CLI", true),
+            ("kimi-cli", "Kimi CLI", false),
+            ("openhands", "OpenHands", false),
+            ("droid", "Droid (Factory)", false),
+            ("crush", "Crush", false),
+            ("amp", "Amp", false),
+            ("replit", "Replit", false),
+            ("codex", "Codex", false),
+            ("opencode", "OpenCode", false),
+        ];
+
+        for (id, name, enabled) in default_agents {
+            conn.execute(
+                "INSERT INTO agent_settings (agent_id, display_name, enabled) VALUES (?1, ?2, ?3)",
+                params![id, name, if enabled { 1 } else { 0 }],
+            ).ok();
+        }
+
+        Ok(())
+    }
+
     pub fn get_stats(&self) -> Result<serde_json::Value, String> {
         let conn = self.conn.lock().map_err(|e| e.to_string())?;
 
@@ -277,6 +389,25 @@ impl Database {
             "project": project,
             "agents": agents
         }))
+    }
+
+    pub fn prune_missing_skills(&self) -> Result<usize, String> {
+        let skills = self.get_all_skills()?;
+        let conn = self.conn.lock().map_err(|e| e.to_string())?;
+        let mut pruned_count = 0;
+
+        for skill in skills {
+            let path = std::path::Path::new(&skill.install_path);
+            if !path.exists() {
+                if let Some(id) = skill.id {
+                    conn.execute("DELETE FROM skills WHERE id = ?1", params![id])
+                        .map_err(|e| format!("Failed to delete orphan skill {}: {}", skill.name, e))?;
+                    pruned_count += 1;
+                }
+            }
+        }
+
+        Ok(pruned_count)
     }
 
     fn get_agents_for_skill(conn: &Connection, skill_id: i64) -> Vec<String> {

@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { invoke } from '@tauri-apps/api/core';
-import { Skill, SkillDetail, InstallResult, Stats, ScanPath } from '../models/skill.model';
+import { Skill, SkillDetail, InstallResult, Stats, ScanPath, AgentSetting } from '../models/skill.model';
 
 @Injectable({ providedIn: 'root' })
 export class SkillsService {
@@ -96,6 +96,30 @@ export class SkillsService {
             return await invoke<ScanPath[]>('get_scan_paths');
         } catch (e) {
             return [];
+        }
+    }
+
+    async getAgentSettings(): Promise<AgentSetting[]> {
+        try {
+            return await invoke<AgentSetting[]>('get_agent_settings');
+        } catch (e) {
+            return [];
+        }
+    }
+
+    async updateAgentSetting(agentId: string, enabled: boolean): Promise<void> {
+        try {
+            await invoke('update_agent_setting', { agentId, enabled });
+        } catch (e) {
+            console.error('Failed to update agent setting:', e);
+        }
+    }
+
+    async resetAgentSettings(): Promise<void> {
+        try {
+            await invoke('reset_default_agents');
+        } catch (e) {
+            console.error('Failed to reset agent settings:', e);
         }
     }
 }

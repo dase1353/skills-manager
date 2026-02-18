@@ -20,7 +20,9 @@ import { Skill } from '../../core/models/skill.model';
       <!-- Search & Filter Bar -->
       <div class="toolbar animate-in" style="animation-delay: 0.05s">
         <div class="input-group search-box">
-          <span class="icon">🔍</span>
+          <span class="icon">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
           <input type="text"
                  placeholder="搜尋 skills..."
                  [ngModel]="searchQuery()"
@@ -32,10 +34,16 @@ import { Skill } from '../../core/models/skill.model';
                   (click)="scopeFilter.set('all')">全部</button>
           <button class="filter-btn"
                   [class.active]="scopeFilter() === 'global'"
-                  (click)="scopeFilter.set('global')">🌐 全域</button>
+                  (click)="scopeFilter.set('global')">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            全域
+          </button>
           <button class="filter-btn"
                   [class.active]="scopeFilter() === 'project'"
-                  (click)="scopeFilter.set('project')">📁 專案</button>
+                  (click)="scopeFilter.set('project')">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            專案
+          </button>
         </div>
         <div class="sort-group">
           <select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)"
@@ -56,7 +64,7 @@ import { Skill } from '../../core/models/skill.model';
         </div>
       } @else if (filteredSkills().length === 0) {
         <div class="empty-state">
-          <span class="icon">🔍</span>
+          <svg class="icon-svg" style="width:48px;height:48px;opacity:0.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <p>找不到符合條件的 Skills</p>
         </div>
       } @else {
@@ -85,7 +93,8 @@ import { Skill } from '../../core/models/skill.model';
               </span>
               <span class="col-agents">
                 <span class="agents-count" [title]="skill.agents.join(', ')">
-                  🤖 {{ skill.agents.length }}
+                  <svg class="icon-svg icon-svg-sm" style="display:inline;vertical-align:middle;margin-right:3px" viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-2 4-4 6-2-2-4-4.05-4-6a4 4 0 0 1 4-4z"/><path d="M12 14c3 2.5 6 4.5 6 8H6c0-3.5 3-5.5 6-8z"/></svg>
+                  {{ skill.agents.length }}
                 </span>
               </span>
               <span class="col-security">
@@ -113,10 +122,18 @@ import { Skill } from '../../core/models/skill.model';
     </div>
   `,
   styles: [`
-    .skills-page { max-width: 1100px; }
+    .skills-page { width: 100%; }
 
     .page-header { margin-bottom: var(--space-lg); }
-    .page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+    .page-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .page-subtitle { color: var(--text-secondary); margin-top: 4px; font-size: 13px; }
 
     .toolbar {
@@ -134,23 +151,31 @@ import { Skill } from '../../core/models/skill.model';
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 2px;
+      padding: 3px;
     }
 
     .filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       padding: 6px 14px;
       background: none;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       color: var(--text-secondary);
       font-family: var(--font-family);
       font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all var(--transition-fast);
     }
 
-    .filter-btn:hover { color: var(--text-primary); }
-    .filter-btn.active { background: var(--primary); color: white; }
+    .filter-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+    .filter-btn.active {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+    }
 
     .sort-select {
       padding: 8px 12px;
@@ -162,7 +187,9 @@ import { Skill } from '../../core/models/skill.model';
       font-size: 12px;
       outline: none;
       cursor: pointer;
+      transition: border-color var(--transition-fast);
     }
+    .sort-select:focus { border-color: var(--primary); }
 
     /* ── List Table ── */
     .list-container {
@@ -176,7 +203,9 @@ import { Skill } from '../../core/models/skill.model';
       gap: var(--space-md);
       padding: 10px var(--space-lg);
       background: var(--bg-surface);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid transparent;
+      border-image: var(--gradient-primary);
+      border-image-slice: 1;
       font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
@@ -192,12 +221,24 @@ import { Skill } from '../../core/models/skill.model';
       padding: 12px var(--space-lg);
       border-bottom: 1px solid var(--border);
       cursor: pointer;
-      transition: background 0.15s;
+      transition: all var(--transition-fast);
+      position: relative;
     }
 
     .list-row:last-child { border-bottom: none; }
-    .list-row:hover { background: var(--bg-card-hover); }
-    .list-row.alt { background: rgba(255, 255, 255, 0.015); }
+    .list-row:hover {
+      background: var(--bg-card-hover);
+    }
+    .list-row:hover::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--gradient-primary);
+    }
+    .list-row.alt { background: rgba(255, 255, 255, 0.01); }
     .list-row.alt:hover { background: var(--bg-card-hover); }
 
     .col-name {
@@ -232,6 +273,8 @@ import { Skill } from '../../core/models/skill.model';
 
     .agents-count {
       cursor: help;
+      display: inline-flex;
+      align-items: center;
     }
 
     .no-data {
